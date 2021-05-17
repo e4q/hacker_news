@@ -11,6 +11,11 @@ jobs:
     container:
       image: erlang:24.0-alpine
     steps:
+    - name: Prepare
+      run: |
+           apk update
+           apk --no-cache upgrade
+           apk --no-cache add git
     - name: Checkout
       uses: actions/checkout@v2
     - name: Publish to Hex.pm
