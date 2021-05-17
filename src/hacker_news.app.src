@@ -1,0 +1,20 @@
+{application, hacker_news, [
+{description, "An OTP application"},
+    {vsn, semver},
+    {registered, []},
+    {mod, {hacker_news_app, []}},
+    {applications, [
+        kernel,
+        stdlib,
+        inets,
+        ssl
+    ]},
+    {env,[
+        {topstories_url, "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty"},
+        {topstories_total, 50},
+        {topstories_interval, 300000}
+    ]},
+    {modules, []},
+    {licenses, ["MIT"]},
+    {links, [{"Github", "https://github.com/vkatsuba/hacker_news"}]}
+ ]}.
