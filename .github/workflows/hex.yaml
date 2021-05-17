@@ -1,0 +1,21 @@
+name: Publish to hex.pm
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    container:
+      image: erlang:24.0-alpine
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Publish to Hex.pm
+      env:
+        HEX_API_KEY: ${{ secrets.HEX_API_KEY }}
+      run: |
+           rebar3 edoc
+           rebar3 hex publish -r hexpm --yes
