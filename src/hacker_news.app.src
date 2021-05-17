@@ -12,7 +12,7 @@
     {env,[
         {topstories_url, "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty"},
         {topstories_total, 50},
-        {topstories_interval, 300},
+        {topstories_interval, 300000},
         {topstories_retry, 10}
     ]},
     {modules, []},

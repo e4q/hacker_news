@@ -21,9 +21,9 @@ init([]) ->
         period => 1
     },
     ChildSpec = #{
-        id => hacker_news_topstories_sup,
-        start => {hacker_news_topstories_sup, start_link, []},
-        type => supervisor,
+        id => hacker_news_topstories,
+        start => {hacker_news_topstories, start_link, []},
+        type => worker,
         restart => permanent,
         shutdown => 5000
     },

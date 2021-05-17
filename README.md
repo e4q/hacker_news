@@ -51,7 +51,7 @@ $ ./rebar3 edoc
 * Edit file **rebar.config**:
 ```erlang
 {deps, [
-    {hacker_news, "0.0.1"},
+    {hacker_news, "0.0.2"},
 ]}.
 ```
 

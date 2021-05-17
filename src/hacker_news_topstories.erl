@@ -39,6 +39,8 @@
 
 -define(DEFAULT_STORIES_TOTAL, 50).
 -define(REQ_INTERVAL, 5 * 60 * 1000).
+-define(CACHE, cache_topstories).
+-define(HACKER_NEWS, hacker_news).
 
 %%% ============================================================================
 %%% API functions
@@ -61,24 +63,24 @@ start_link() ->
 
 get() ->
     try 
-        persistent_term:get(cache_topstories)
+        persistent_term:get(?CACHE)
     catch
         _:_ ->
             get_topstories()
     end.
 
 init([]) ->
-    gen_server:cast(?MODULE, cache_topstories),
+    gen_server:cast(?MODULE, ?CACHE),
     {ok, #{}}.
 
 handle_call(_Request, _From, State) ->
     {reply, ignored, State}.
 
-handle_cast(cache_topstories = Key, State) ->
+handle_cast(?CACHE = Key, State) ->
     Res = get_topstories(),
     ok = persistent_term:put(Key, Res),
-    Interval = application:get_env(hacker_news, topstories_interval, ?REQ_INTERVAL),
-    timer:apply_after(Interval, gen_server, cast, [?MODULE, Key]),
+    Interval = application:get_env(?HACKER_NEWS, topstories_interval, ?REQ_INTERVAL),
+    {ok, _} = timer:apply_after(Interval, gen_server, cast, [?MODULE, Key]),
     {noreply, State#{Key => Res}};
 handle_cast(_Msg, State) ->
     {noreply, State}.
@@ -103,9 +105,9 @@ terminate(_Reason, _State) ->
 
 get_topstories() ->
     try 
-        [_|_] = Url = application:get_env(hacker_news, topstories_url, undefined),
-        Total = application:get_env(hacker_news, topstories_total, ?DEFAULT_STORIES_TOTAL),
-        Retry = application:get_env(hacker_news, topstories_retry, 10),
+        [_|_] = Url = application:get_env(?HACKER_NEWS, topstories_url, undefined),
+        Total = application:get_env(?HACKER_NEWS, topstories_total, ?DEFAULT_STORIES_TOTAL),
+        Retry = application:get_env(?HACKER_NEWS, topstories_retry, 10),
         ok = httpc:set_options([{keep_alive_timeout, 0}]),
         {ok, Data} = maybe_retry(Url, Retry),
         [_ | Res] = lists:sublist(string:tokens(get_http_resp_body(Data), ", "), Total + 1),
@@ -127,8 +129,6 @@ get_topstories() ->
 
 get_http_resp_code({{_, Code, _}, _, _}) ->
     Code;
-get_http_resp_code({Code, _}) ->
-    Code;
 get_http_resp_code(_) ->
     error.
 
@@ -141,8 +141,6 @@ get_http_resp_code(_) ->
 -spec get_http_resp_body(HttpcResult :: tuple()) -> Res :: list() | error.
 
 get_http_resp_body({_, _, Body}) ->
-    Body;
-get_http_resp_body({_, Body}) ->
     Body;
 get_http_resp_body(_) ->
     error.
@@ -164,5 +162,6 @@ maybe_retry(Url, Retry) ->
         Res
     catch
         _:_ ->
+            ?LOG(warning, "GET topstories - was attempts left: ~p times", [Retry]),
             maybe_retry(Url, Retry - 1)
     end.
