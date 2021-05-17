@@ -105,9 +105,9 @@ get_topstories() ->
     try 
         [_|_] = Url = application:get_env(hacker_news, topstories_url, undefined),
         Total = application:get_env(hacker_news, topstories_total, ?DEFAULT_STORIES_TOTAL),
+        Retry = application:get_env(hacker_news, topstories_retry, 10),
         ok = httpc:set_options([{keep_alive_timeout, 0}]),
-        {ok, Data} = httpc:request(get, {Url, []}, [], []),
-        200 = get_http_resp_code(Data),
+        {ok, Data} = maybe_retry(Url, Retry),
         [_ | Res] = lists:sublist(string:tokens(get_http_resp_body(Data), ", "), Total + 1),
         {ok, Res}
     catch
@@ -123,7 +123,7 @@ get_topstories() ->
 %% Returns HTTP response code
 %% @end
 %% -----------------------------------------------------------------------------
--spec get_http_resp_code(HttpcResult :: tuple()) -> Code :: pos_integer().
+-spec get_http_resp_code(HttpcResult :: tuple()) -> Res :: pos_integer() | error.
 
 get_http_resp_code({{_, Code, _}, _, _}) ->
     Code;
@@ -138,7 +138,7 @@ get_http_resp_code(_) ->
 %% Returns HTTP response body
 %% @end
 %% -----------------------------------------------------------------------------
--spec get_http_resp_body(HttpcResult :: tuple()) -> Body :: list().
+-spec get_http_resp_body(HttpcResult :: tuple()) -> Res :: list() | error.
 
 get_http_resp_body({_, _, Body}) ->
     Body;
@@ -146,3 +146,23 @@ get_http_resp_body({_, Body}) ->
     Body;
 get_http_resp_body(_) ->
     error.
+
+%% -----------------------------------------------------------------------------
+%% @private
+%% @doc
+%% Retry N times if first call was failed
+%% @end
+%% -----------------------------------------------------------------------------
+-spec maybe_retry(Url :: list(), Retry :: integer()) -> {ok, Res :: list()} | term().
+
+maybe_retry(_, 0) ->
+    error;
+maybe_retry(Url, Retry) ->
+    try 
+        {ok, Data} = Res = httpc:request(get, {Url, []}, [], []),
+        200 = get_http_resp_code(Data),
+        Res
+    catch
+        _:_ ->
+            maybe_retry(Url, Retry - 1)
+    end.
