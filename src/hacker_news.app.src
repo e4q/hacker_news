@@ -1,5 +1,5 @@
 {application, hacker_news, [
-{description, "An OTP application"},
+{description, "Erlang Hacker News Aggregator"},
     {vsn, semver},
     {registered, []},
     {mod, {hacker_news_app, []}},
