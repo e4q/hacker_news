@@ -47,7 +47,7 @@
 %%% ============================================================================
 
 start_link() ->
-    Opts = [{hibernate_after, 5000}],
+    Opts = [{hibernate_after, 5000}, {spawn_opt,[{fullsweep_after, 0}]}],
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], Opts).
 
 %%% ============================================================================
