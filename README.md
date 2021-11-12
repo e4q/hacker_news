@@ -18,7 +18,7 @@ Erlang Hacker News Aggregator
 # Goals
 `hacker_news` aims to provide a simple aggregator for play with [Hacker News API](https://github.com/HackerNews/API).
 
-# Build & Run
+## Build & Run
 ```sh
 $ git clone https://github.com/vkatsuba/hacker_news.git
 $ cd hacker_news
@@ -27,27 +27,27 @@ $ chmod u+x ./rebar3
 $ ./rebar3 shell
 ```
 
-# Dialyzer
+## Dialyzer
 ```sh
 $ ./rebar3 dialyzer
 ```
 
-# Xref
+## Xref
 ```sh
 $ ./rebar3 xref
 ```
 
-# Run Tests
+## Run Tests
 ```sh
 $ ./rebar3 ct
 ```
 
-# Generate documentation
+## Generate documentation
 ```sh
 $ ./rebar3 edoc
 ```
 
-# Install `hacker_news` to project: [Rebar3](https://www.rebar3.org/)
+## Install `hacker_news` to project: [Rebar3](https://www.rebar3.org/)
 * Edit file **rebar.config**:
 ```erlang
 {deps, [
